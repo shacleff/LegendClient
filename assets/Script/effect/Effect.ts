@@ -81,3 +81,4 @@ export default class Effect extends cc.Component {
         this.node.removeFromParent();
     }
 }
+
