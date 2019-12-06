@@ -1,5 +1,5 @@
 import PropertyUI from "./PropertyUI";
-import { GameUtils } from "../utils/GameUtils";
+import {GameUtils} from "../utils/GameUtils";
 import BagUI from "./BagUI";
 import ResInfoUI from "./ResInfoUI";
 
@@ -16,7 +16,7 @@ export default class MainUI extends cc.Component {
 
     @property(PropertyUI)
     node_property: PropertyUI = null;
-    
+
     @property(BagUI)
     node_bag: BagUI = null;
 
@@ -25,14 +25,15 @@ export default class MainUI extends cc.Component {
 
     private is_open_property = false;
     private is_open_bag = false;
-    onLoad () {
+
+    onLoad() {
         this.node_property.close();
         this.node_bag.close();
         this.node_res_info.close();
         GameUtils.res_info_ui = this.node_res_info;
         GameUtils.bag_ui = this.node_bag;
         let self = this;
-        this.btn_property.node.on("click",function () {
+        this.btn_property.node.on("click", function () {
             if (self.is_open_property == false) {
                 self.node_property.open(GameUtils.player_info.player);
                 self.is_open_property = true;
@@ -40,8 +41,8 @@ export default class MainUI extends cc.Component {
                 self.node_property.close();
                 self.is_open_property = false;
             }
-        },this);
-        this.btn_bag.node.on("click",function () {
+        }, this);
+        this.btn_bag.node.on("click", function () {
             if (self.is_open_bag == false) {
                 self.node_bag.open();
                 self.is_open_bag = true;
@@ -49,9 +50,7 @@ export default class MainUI extends cc.Component {
                 self.node_bag.close();
                 self.is_open_bag = false;
             }
-        },this);
+        }, this);
         this.node.active = true;
     }
-
-    // update (dt) {}
 }

@@ -1,6 +1,17 @@
 import Hero from "../hero/Hero";
-import { GameUtils } from "../utils/GameUtils";
-import { ResFloorInfo, PP, Point, EffectConfig, dir_to_p, compute_dir, p_to_pots, get_l, GameInfo, Player } from "../utils/tool";
+import {GameUtils} from "../utils/GameUtils";
+import {
+    ResFloorInfo,
+    PP,
+    Point,
+    EffectConfig,
+    dir_to_p,
+    compute_dir,
+    p_to_pots,
+    get_l,
+    GameInfo,
+    Player
+} from "../utils/tool";
 import ResFloor from "../res/ResFloor";
 import MainUI from "../ui/MainUI";
 
@@ -10,120 +21,122 @@ const {ccclass, property} = cc._decorator;
 export default class GameScene extends cc.Component {
 
     @property(cc.Prefab)
-    hero_pre:cc.Prefab = null;
+    hero_pre: cc.Prefab = null;
 
     @property(cc.Prefab)
-    res_floor_pre:cc.Prefab = null;
+    res_floor_pre: cc.Prefab = null;
 
     @property(cc.Sprite)
-    map:cc.Sprite = null;
+    map: cc.Sprite = null;
 
     @property(cc.Node)
-    res_map:cc.Node = null;
+    res_map: cc.Node = null;
 
     @property(cc.Graphics)
-    draw_layer:cc.Graphics = null;
+    draw_layer: cc.Graphics = null;
 
     @property(cc.Camera)
-    main_camera:cc.Camera = null;
+    main_camera: cc.Camera = null;
 
     @property(cc.Camera)
-    ui_camera:cc.Camera = null;
-    
+    ui_camera: cc.Camera = null;
+
     @property(MainUI)
-    main_ui:MainUI = null;
+    main_ui: MainUI = null;
 
-    private hero:Hero = null;
-    public other_heros:Hero[] = [];
-    private ress:ResFloor[] = [];
-    private pinus:Pomelo = null;
-    private goto_time:number = 0;
-    private goto_out:cc.Vec2 = null;
+    private hero: Hero = null;
+    public other_heros: Hero[] = [];
+    private ress: ResFloor[] = [];
+    private pinus: Pomelo = null;
+    private goto_time: number = 0;
+    private goto_out: cc.Vec2 = null;
 
-    onLoad () {
+    onLoad() {
         GameUtils.ui_camera = this.ui_camera;
         GameUtils.game_scene = this;
         let pinus = GameUtils.getInstance().pinus;
         this.pinus = pinus;
-        this.pinus.on("onCreate",this.onCreate.bind(this));
-        this.pinus.on("onCreateRes",this.onCreateRes.bind(this));
+        this.pinus.on("onCreate", this.onCreate.bind(this));
+        this.pinus.on("onCreateRes", this.onCreateRes.bind(this));
     }
 
-    start () {
-        let player:any = GameUtils.player_info;
+    start() {
+        let player: any = GameUtils.player_info;
         let node = cc.instantiate(this.hero_pre);
-        let hero:Hero = node.getComponent(Hero);
-        hero.init(player.player.player.name,player.player,this.main_camera);
+        let hero: Hero = node.getComponent(Hero);
+        hero.init(player.player.player.name, player.player, this.main_camera);
         this.hero = hero;
         GameUtils.self_player = hero;
         hero.node.parent = this.map.node;
         let self = this;
-        this.map.node.on(cc.Node.EventType.TOUCH_END,function (event:cc.Event.EventTouch) {
-            let pot:cc.Vec2 = event.getLocation();
-            let out:cc.Vec2 = new cc.Vec2();
-            pot = self.main_camera.getCameraToWorldPoint(pot,out);
+        this.map.node.on(cc.Node.EventType.TOUCH_END, function (event: cc.Event.EventTouch) {
+            let pot: cc.Vec2 = event.getLocation();
+            let out: cc.Vec2 = new cc.Vec2();
+            pot = self.main_camera.getCameraToWorldPoint(pot, out);
             self.goto_out = out;
             GameUtils.res_info_ui.close();
-        },this);
+        }, this);
         this.create_other_man(player.other_players);
         this.create_ress(player.ress);
     }
 
-    goto(local_pot:cc.Vec2) {
-        console.log("local_pot:",local_pot);
-        let pot:{x:number,y:number} = {x:local_pot.x,y:local_pot.y};
+    goto(local_pot: cc.Vec2) {
+        console.log("local_pot:", local_pot);
+        let pot: { x: number, y: number } = {x: local_pot.x, y: local_pot.y};
         pot.x = Math.floor(pot.x / GameUtils.map_scale);
         pot.y = Math.floor(pot.y / GameUtils.map_scale);
-        console.log("pot:",pot);
+        console.log("pot:", pot);
         this.hero.goto(pot);
     }
 
-    create_other_man(other_players:any[]) {
+    create_other_man(other_players: any[]) {
         for (let index = 0; index < other_players.length; index++) {
             const element = other_players[index];
-            this.onCreate(element,false);
+            this.onCreate(element, false);
         }
     }
 
-    onCreate(data:any,is_init:boolean = true) {
-        let player:any = GameUtils.player_info;
-        if (is_init)player.other_players.push(data);
+    onCreate(data: any, is_init: boolean = true) {
+        let player: any = GameUtils.player_info;
+        if (is_init) player.other_players.push(data);
         // if (data.player.name == this.hero.get_name()) return;
         let node = cc.instantiate(this.hero_pre);
-        let hero:Hero = node.getComponent(Hero);
-        hero.init(data.player.name,data,null);
+        let hero: Hero = node.getComponent(Hero);
+        hero.init(data.player.name, data, null);
         this.other_heros.push(hero);
         hero.node.parent = this.map.node;
     }
 
-    create_ress(ress:ResFloorInfo[]) {
+    create_ress(ress: ResFloorInfo[]) {
         for (let index = 0; index < ress.length; index++) {
             const element = ress[index];
-            this.onCreateRes(element,false);
+            this.onCreateRes(element, false);
         }
     }
 
-    onCreateRes(data:ResFloorInfo,is_init:boolean = true) {
-        let player:any = GameUtils.player_info;
-        if (is_init)player.ress.push(data);
+    onCreateRes(data: ResFloorInfo, is_init: boolean = true) {
+        let player: any = GameUtils.player_info;
+        if (is_init) player.ress.push(data);
         let node = cc.instantiate(this.res_floor_pre);
-        let res:ResFloor = node.getComponent(ResFloor);
+        let res: ResFloor = node.getComponent(ResFloor);
         res.init(data);
         this.ress.push(res);
         res.node.parent = this.res_map;
     }
 
-    update (dt) {
-        let now:number = Date.now();
+    update(dt) {
+        let now: number = Date.now();
         let self = this;
-        function gogogo(out:cc.Vec2) {
+
+        function gogogo(out: cc.Vec2) {
             self.goto(out);
             self.goto_time = Date.now();
             GameUtils.attack_target = null;
             self.hero.tarce_pot = null;
         }
+
         if (now - this.goto_time > GameUtils.goto_gap) {
-            if (this.goto_out){
+            if (this.goto_out) {
                 gogogo(this.goto_out);
                 this.goto_out = null;
             }
@@ -134,78 +147,79 @@ export default class GameScene extends cc.Component {
     draw_clear() {
         this.draw_layer.clear();
     }
+
     // 绘制技能攻击范围
-    draw_skill_range(pp:PP,effect_info:EffectConfig) {
+    draw_skill_range(pp: PP, effect_info: EffectConfig) {
         if (!effect_info) return;
         this.draw_layer.clear();
-        let r_t_l:number = pp.r_t_l;/// 技能实际攻击最长距离
-        let s_l:number = pp.s_l;
-        let s_p:Point = pp.s_p; /// 向量
-        let s_r:number = pp.s_r; /// 距离比例 ratio
-        let r_l:number = pp.r_l;
-        let r_p_p:Point = pp.r_p_p; // 精确格子向量(不是单位向量)用来换算成像素
-        let r_g_p:Point = pp.r_g_p; // 目标点格子向量(不是单位向量)就是实际攻击的坐标
-        let grid_w:number = GameUtils.map_scale;
-        let player_pot:Point = this.hero.get_pot();
-        let player_p_pot:Point = {x:player_pot.x*grid_w,y:player_pot.y*grid_w};
+        let r_t_l: number = pp.r_t_l;   // 技能实际攻击最长距离
+        let s_l: number = pp.s_l;
+        let s_p: Point = pp.s_p;        // 向量
+        let s_r: number = pp.s_r;       // 距离比例 ratio
+        let r_l: number = pp.r_l;
+        let r_p_p: Point = pp.r_p_p;    // 精确格子向量(不是单位向量)用来换算成像素
+        let r_g_p: Point = pp.r_g_p;    // 目标点格子向量(不是单位向量)就是实际攻击的坐标
+        let grid_w: number = GameUtils.map_scale;
+        let player_pot: Point = this.hero.get_pot();
+        let player_p_pot: Point = {x: player_pot.x * grid_w, y: player_pot.y * grid_w};
         if (effect_info.name == "狂风斩") {
-            let ctx:cc.Graphics = this.draw_layer;
-            ctx.circle(player_p_pot.x,player_p_pot.y,r_t_l*grid_w);
+            let ctx: cc.Graphics = this.draw_layer;
+            ctx.circle(player_p_pot.x, player_p_pot.y, r_t_l * grid_w);
             let color = cc.Color.GREEN;
             color.setA(100);
             ctx.fillColor = color;
             ctx.fill();
-        }else if (effect_info.name == "逐日剑法") {
-            let o_pot:Point = player_pot;
-            let e_pot:Point = {x:o_pot.x+r_g_p.x,y:o_pot.y+r_g_p.y};
-            let p:Point = dir_to_p(compute_dir(e_pot,o_pot));
+        } else if (effect_info.name == "逐日剑法") {
+            let o_pot: Point = player_pot;
+            let e_pot: Point = {x: o_pot.x + r_g_p.x, y: o_pot.y + r_g_p.y};
+            let p: Point = dir_to_p(compute_dir(e_pot, o_pot));
             if (!p) return;
-            let pots:Point[] = p_to_pots(o_pot,p,effect_info.attack_l);
+            let pots: Point[] = p_to_pots(o_pot, p, effect_info.attack_l);
             pots.forEach(element => {
                 element.x *= grid_w;
                 element.y *= grid_w;
             });
-            let ctx:cc.Graphics = this.draw_layer;
+            let ctx: cc.Graphics = this.draw_layer;
             pots.forEach(element => {
-                ctx.rect(element.x,element.y,grid_w,grid_w);
+                ctx.rect(element.x, element.y, grid_w, grid_w);
                 let color = cc.Color.GREEN;
                 color.setA(100);
                 ctx.fillColor = color;
                 ctx.fill();
             });
-        }else if (effect_info.name == "冰咆哮" || effect_info.name == "流星火雨") {
-            let ctx:cc.Graphics = this.draw_layer;
-            ctx.circle(player_p_pot.x,player_p_pot.y,r_t_l*grid_w);
+        } else if (effect_info.name == "冰咆哮" || effect_info.name == "流星火雨") {
+            let ctx: cc.Graphics = this.draw_layer;
+            ctx.circle(player_p_pot.x, player_p_pot.y, r_t_l * grid_w);
             let color = cc.Color.GREEN;
             color.setA(100);
             ctx.fillColor = color;
             ctx.fill();
-            let e_pot:Point = {x:player_pot.x+r_p_p.x,y:player_pot.y+r_p_p.y};
-            e_pot = {x:e_pot.x * grid_w,y:e_pot.y * grid_w};
-            ctx.circle(e_pot.x,e_pot.y,effect_info.range_l*grid_w);
+            let e_pot: Point = {x: player_pot.x + r_p_p.x, y: player_pot.y + r_p_p.y};
+            e_pot = {x: e_pot.x * grid_w, y: e_pot.y * grid_w};
+            ctx.circle(e_pot.x, e_pot.y, effect_info.range_l * grid_w);
             let color2 = cc.Color.BLUE;
             color2.setA(100);
             ctx.fillColor = color2;
             ctx.fill();
-        }else if (effect_info.name == "灭天火" || effect_info.name == "噬血术" || effect_info.name == "治愈术") {
-            let ctx:cc.Graphics = this.draw_layer;
-            ctx.circle(player_p_pot.x,player_p_pot.y,r_t_l*grid_w);
+        } else if (effect_info.name == "灭天火" || effect_info.name == "噬血术" || effect_info.name == "治愈术") {
+            let ctx: cc.Graphics = this.draw_layer;
+            ctx.circle(player_p_pot.x, player_p_pot.y, r_t_l * grid_w);
             let color = cc.Color.GREEN;
             color.setA(100);
             ctx.fillColor = color;
             ctx.fill();
-            let target:Hero = GameUtils.selete_target;
+            let target: Hero = GameUtils.selete_target;
             if (target) {
-                let e_pot:Point = target.get_pot();
-                let e_p_pot:Point = {x:e_pot.x * grid_w,y:e_pot.y * grid_w};
-                if (get_l(player_pot,e_pot) <= effect_info.attack_l) {
-                    ctx.circle(e_p_pot.x,e_p_pot.y,1*grid_w);
+                let e_pot: Point = target.get_pot();
+                let e_p_pot: Point = {x: e_pot.x * grid_w, y: e_pot.y * grid_w};
+                if (get_l(player_pot, e_pot) <= effect_info.attack_l) {
+                    ctx.circle(e_p_pot.x, e_p_pot.y, 1 * grid_w);
                     let color2 = cc.Color.BLUE;
                     color2.setA(100);
                     ctx.fillColor = color2;
                     ctx.fill();
-                }else{
-                    ctx.circle(e_p_pot.x,e_p_pot.y,1*grid_w);
+                } else {
+                    ctx.circle(e_p_pot.x, e_p_pot.y, 1 * grid_w);
                     let color2 = cc.Color.RED;
                     color2.setA(100);
                     ctx.fillColor = color2;

@@ -1,4 +1,4 @@
-import { GameUtils } from "../utils/GameUtils";
+import {GameUtils} from "../utils/GameUtils";
 
 const {ccclass, property} = cc._decorator;
 
@@ -9,13 +9,9 @@ export default class FastUI extends cc.Component {
     grids: cc.Sprite[] = [];
 
     @property
-    type:string = '';
+    type: string = '';
 
-    onLoad () {
-        GameUtils[this.type+"_fast_grids"] = this.grids;
+    onLoad() {
+        GameUtils[this.type + "_fast_grids"] = this.grids;
     }
-
-    // start () {}
-
-    // update (dt) {}
 }
